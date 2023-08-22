@@ -54,12 +54,55 @@ class BancoDeDados{
 				continue
 			}
 
+			despesa.id = i
 			despesas.push(despesa)
 		}
 
 		return despesas
 	}
 
+	pesquisar(despesa){
+		let filtros = Array()
+
+		filtros = this.registros() 
+
+		if(despesa.ano != ''){
+		filtros = filtros.filter(d => d.ano == despesa.ano)
+
+		}
+
+		if(despesa.mes != ''){
+		filtros = filtros.filter(d => d.mes == despesa.mes)
+
+		}	
+
+		if(despesa.dia != ''){
+		filtros = filtros.filter(d => d.dia == despesa.dia)
+
+		}	
+
+		if(despesa.tipo != ''){
+		filtros = filtros.filter(d => d.tipo == despesa.tipo)
+
+		}	
+
+		if(despesa.descricao != ''){
+		filtros = filtros.filter(d => d.descricao == despesa.descricao)
+
+		}	
+
+		if(despesa.valor != ''){
+		filtros = filtros.filter(d => d.valor == despesa.valor)
+
+		}	
+
+		return filtros		
+		
+	}
+
+	remover(id){
+		localStorage.removeItem(id)
+	}
 
 }
 
@@ -90,6 +133,13 @@ function adicionar() {
 		bancodedados.gravar(despesa)
 		alert('dados gravados com sucesso')
 
+		ano.value = ""
+		mes.value = ""
+		dia.value = ""
+		tipo.value = ""
+		descricao.value = ""
+		valor.value = ""
+
 		
 	} else{
 		alert('faltam informações')
@@ -97,11 +147,21 @@ function adicionar() {
 
 }
 
-function CarregarDados(){ 
-	let despesas = Array()
+function CarregarDados(despesas = Array(), filtros = false){ 
+	if(despesas.length == 0 && filtros == false){
+
+	
 	despesas = bancodedados.registros()
 
-	let puxarlistaDespesas = document.getElementById('listaDespesas')
+	
+}
+
+
+	let puxarlistaDespesas = document.getElementById("listaDespesas")
+			puxarlistaDespesas.innerHTML = ''
+
+
+			
 		despesas.forEach(function(d){
 			var linha = puxarlistaDespesas.insertRow();
 			linha.insertCell(0).innerHTML = `${d.dia}/${d.mes}/${d.ano}`
@@ -120,12 +180,45 @@ function CarregarDados(){
 				}
 			linha.insertCell(2).innerHTML = d.descricao
 			linha.insertCell(3).innerHTML = d.valor
+
+			let btn = document.createElement("button")
+			btn.className = 'btn btn-danger'
+			btn.innerHTML = "X"
+			btn.id = `id_despesa_${d.id}`
+			btn.onclick = function(){
+
+			//alert(id)
+			let id = this.id.replace('id_despesa_','')
+
+			bancodedados.remover(id)
+
+			window.location.reload()
+
+			}
+
+			linha.insertCell(4).append(btn)
+
+
 		})
 
  }
 
 
+function search(){
+	let ano = document.getElementById('ano').value
+	let mes = document.getElementById('mes').value
+	let dia = document.getElementById('dia').value
+	let tipo = document.getElementById('tipo').value
+	let descricao = document.getElementById('descricao').value
+	let valor = document.getElementById('Valor').value
 
+	let despesa = new Despesa(ano, mes, dia, tipo, descricao, valor)
+	
 
+	let despesas = bancodedados.pesquisar(despesa)
+
+	this.CarregarDados(despesas, true)
+
+}
 	
 
